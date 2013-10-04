@@ -1,0 +1,23 @@
+* HEP Toolkit
+A collection of scripts and tools to make life a little easier.
+** Lab Notebook
+lab-notebook.el is a collection of functions that will parse an org
+file and produce a structured set of org files that can be exported
+to a website.  
+
+DOCUMENT ME
+** Panda Parse
+panda_parse is a python script that will open your panda jobs page
+and print two files panda_retrieve.txt for datasets that had less
+than 5% failure rate and panda_resubmit.txt for datasets that should
+be resubmitted. If a dataset needs to be resubmitted, the output
+datset name is printed to stdout.  
+
+Everything is hard coded right now.  If I have some day I might make
+it more user friendly.
+*** Requirements
+- Beautiful Soup 4
+- urllib
+- python 2.7+
+
+
