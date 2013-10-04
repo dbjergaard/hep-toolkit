@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+from bs4 import BeautifulSoup
+import urllib
+table_header={'Holding':6,'Finished':7,'Failed':8,'Cancelled':9}
+def write_list(fname,dset_list):
+    outFile=open(fname,'w')
+    for ds in dset_list:
+        outFile.write("%s\n"%ds)
+    outFile.close()
+def get_field(row,key):
+    field=row.find_all('td')[table_header[key]].get_text()
+    try:
+        result=int(field)
+        return result
+    except ValueError:
+        return 0
+#"http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David+Bjergaard&reload=yes&type=&days=6&jobsetID=any&jobStatus=&site=&plot=no&ui=user&name=David+Bjergaard&nojobs=yes"
+site=urllib.urlopen('http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David%20Bjergaard&nojobs=yes')
+html=site.read()
+soup = BeautifulSoup(''.join(html))
+table=soup.find_all('table')[12]
+#print table
+rows=table.find_all('tr')
+retrieve=[]
+resubmit=[]
+print 'Name of output DS for jobs to be resubmitted:'
+for i in range(1,len(rows)/2-1):
+    job_info,dset_info=rows[2*i],rows[2*i+1]
+    holding=get_field(job_info,'Holding')
+    finished=get_field(job_info,'Finished')
+    failed=get_field(job_info,'Failed')
+    cancelled=get_field(job_info,'Cancelled')
+    dset_info=dset_info.find_all('td')[0].find_all('a')
+    inDS=dset_info[0].get_text()
+    outDS=dset_info[2].get_text()
+    if finished==0 and holding > 0:
+        continue
+    if finished==0 or float(failed+cancelled)/finished > 0.05:
+        resubmit+=[inDS]
+        print outDS
+    else:
+        retrieve+=[outDS]
+print 'Need to resubmit %d and retrieve %d jobs'%(len(resubmit),len(retrieve))
+write_list('panda_resubmit.txt',resubmit)
+write_list('panda_retrieve.txt',retrieve)
