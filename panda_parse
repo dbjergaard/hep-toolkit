@@ -15,8 +15,9 @@ def get_field(row,key):
         return result
     except ValueError:
         return 0
+#http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David%20Bjergaard&nojobs=yes
 #"http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David+Bjergaard&reload=yes&type=&days=6&jobsetID=any&jobStatus=&site=&plot=no&ui=user&name=David+Bjergaard&nojobs=yes"
-site=urllib.urlopen('http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David%20Bjergaard&nojobs=yes')
+site=urllib.urlopen('http://panda.cern.ch/server/pandamon/query?job=*&ui=user&name=David+Bjergaard&reload=yes&type=&days=8&jobsetID=any&jobStatus=&site=&plot=no&name=David+Bjergaard&reload=yes&ui=user&nojobs=yes')
 html=site.read()
 soup = BeautifulSoup(''.join(html))
 table=soup.find_all('table')[12]

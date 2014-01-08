@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import imaplib
+import sys
+from getpass import getpass
+imap=imaplib.IMAP4_SSL('imap.cern.ch')
+imap.login('davidb',getpass())
+imap.select()
+typ,data=imap.search(None,'(BEFORE \"01-Sep-2012\")')
+data=data[0].split()
+print "Found %d messages before Sept 1st 2012, really delete? [y/n]"%(len(data))
+yes = set(['yes','y'])
+no = set(['no','n'])
+choice = raw_input().lower()
+if choice in yes:
+    print "Deleting..."
+    for num in data:
+        imap.store(num,'+FLAGS','\\Deleted')
+    imap.expunge()
+else:
+    imap.close()
+    imap.logout()
+    sys.exit("Aborting...")
+imap.close()
+imap.logout()

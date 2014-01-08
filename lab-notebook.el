@@ -58,7 +58,7 @@
 							heading)))
 (defun dash-title (title)
   "Strip non-filename characters and replace spaces with dashes"
-  (replace-regexp-in-string "[:=\(\)\?]" ""
+  (replace-regexp-in-string "[:=\(\)\?/]" ""
 			    (replace-regexp-in-string
 			     "[ \t]" "-" title)))
 (defun write-post (tags time archive-fname)
@@ -87,6 +87,11 @@
    *org-project-publish-dir*))
 (defun get-short-fname (fname-path)
   (car (last (split-string fname-path "/"))))
+(defun clean-org-files (list)
+  "If file corresponding to member of list exists delete it"
+  (mapc (lambda (x)
+	  (if (file-exists-p x)
+	      (delete-file x))) list))
 (defun split-project-file ()
   "Split Project file into sub-files and copy them to a specified
   directory for later export to a static website."
@@ -99,12 +104,9 @@
 	   (notebook-archive-fname (make-archive-fname notebook-short-name "archive.org"))
 	   (notebook-digest-fname (make-archive-fname notebook-short-name "digest.org"))
 	   (notebook-task-fname (make-archive-fname notebook-short-name "tasks.org"))) 
-      (if (file-exists-p notebook-archive-fname)
-	  (delete-file notebook-archive-fname))
-      (if (file-exists-p notebook-digest-fname)
-	  (delete-file notebook-digest-fname))
-      (if (file-exists-p notebook-task-fname)
-	  (delete-file notebook-task-fname))
+      (clean-org-files `(,notebook-archive-fname
+			 ,notebook-digest-fname
+			 ,notebook-task-fname))
       (mapc
        (lambda (top-level)
 	 (find-file notebook-file)
@@ -118,14 +120,13 @@
 		  (is-digest (if tags (string-match "digest" tags) nil))
 		  (is-task-list (if tags (string-match "tasks" tags) nil)))
 	      (unless is-classified
-	      ;;TODO export task list to a page
 		(cond (is-task-list (write-task-list notebook-task-fname (buffer-substring (point-min) (point-max))))
 		      ((and time is-digest) (write-post tags time notebook-digest-fname))
-		      (time (write-post tags time notebook-archive-fname)))
-		))))) 
+		      (time (write-post tags time notebook-archive-fname))) ))))) 
        '(1))
       (when (buffer-live-p (get-short-fname notebook-digest-fname)) 
-	(kill-buffer (get-short-fname notebook-digest-fname)))
+      	(kill-buffer (get-short-fname notebook-digest-fname)))
       (when (buffer-live-p (get-short-fname notebook-archive-fname)) 
-	(kill-buffer (get-short-fname notebook-archive-fname))))))
+      	(kill-buffer (get-short-fname notebook-archive-fname))))))
+
 ;(project-title (org-publish-find-title notebook-file))
