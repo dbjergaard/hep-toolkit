@@ -13,11 +13,15 @@ than 5% failure rate and panda_resubmit.txt for datasets that should
 be resubmitted. If a dataset needs to be resubmitted, the output
 datset name is printed to stdout.  
 
-Everything is hard coded right now.  If I have some day I might make
-it more user friendly.
+Everything is hard coded right now.  If I have time some day I might
+make it more user friendly.
 *** Requirements
 - Beautiful Soup 4
 - urllib
 - python 2.7+
-
+** purge_cern_inbox
+This is a working example of how to parse imap requests in
+python... Its very specific, but could be tailored to do more
+sophisticated things (like manage Panda jobs from a chron job and
+resubmit until 100% success rate)
 
