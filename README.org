@@ -25,3 +25,13 @@ python... Its very specific, but could be tailored to do more
 sophisticated things (like manage Panda jobs from a chron job and
 resubmit until 100% success rate)
 
+** split-tree
+This does what it says, takes an input tree and splits it in two.
+Right now its hard coded for trees called "micro" and it only splits
+them in two parts, but all the boilerplate is there, its a small
+exercise to add command line options for the tree and to put it in a
+loop to split it into n parts.  
+
+Just type make in the repo where you checked this out, make sure root
+is activated as the Makefile depends on root-config being in your
+path. 
