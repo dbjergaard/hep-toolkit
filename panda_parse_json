@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+import urllib2,json,re
+max_days=3
+cern_user='davidb'
+req = urllib2.Request("http://bigpanda.cern.ch/tasks/?taskname=user.%s*&days=%d"%(cern_user,max_days))
+req.add_header('Content-Type','application/json')
+json_data=urllib2.build_opener().open(req)
+# print json_data.read()
+dset_re = 'resub'
+rgex = re.compile(dset_re)
+data = json.load(json_data)
+print "Found %d jobs in the last %d days"%(len(data),max_days)
+running_tasks=[]
+finished_tasks=[]
+retry_tasks=[]
+for job in data:
+    if not rgex.search(job['taskname']):
+        continue
+    if job['endtime'] != None:
+        if job['dsinfo']['nfilesfailed']!=0:
+            retry_tasks+=[[job['taskname'],job['dsinfo'],job['reqid']]]
+        else:
+            finished_tasks+=[job['taskname']]
+    else:
+        running_tasks+=[[job['taskname'],job['dsinfo']['pctfinished']]]
+json_data.close()
+if len(running_tasks)!=0:
+    print "The following tasks are still running: "
+    for task in running_tasks:
+        print '%s: %d%%'%(task[0],task[1])
+    print
+if len(retry_tasks)!=0:
+    print "The following tasks are finished, but need to be retried: "
+    for task in retry_tasks:
+        print '%s: %s/%s'%(task[0],task[1]['nfilesfailed'],task[1]['nfiles'])
+    print
+    panda_ids=[x[2] for x in retry_tasks]
+    print "Here are the TaskIds in a form suitable for copy-pasting to pbook (cf 'pbook -c COMSTRING'):"
+    for jid in panda_ids:
+        print jid,
+    print '\n'
+if len(finished_tasks)!=0:
+    print "The following tasks are ready for download: "
+    for task in finished_tasks:
+        print task
